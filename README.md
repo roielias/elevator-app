@@ -1,46 +1,57 @@
-# Getting Started with Create React App
+# Elevator Simulation App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React + TypeScript simulation of an elevator system with building configuration, animated elevator movement, and audio alerts on arrival.
 
-## Available Scripts
+## 📌 Features
 
-In the project directory, you can run:
+- Multiple buildings and elevators
+- Per-floor call buttons with live ETA timers (with decimal seconds)
+- Smooth elevator animation between floors
+- Audio feedback when elevator arrives at a floor
+- Call button changes color when elevator is on its way
+- Settings modal to define number of buildings, floors, and elevators
 
-### `npm start`
+## 🚀 Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 📦 Installation
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+npm install
+```
 
-### `npm test`
+### ▶️ Run the App
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm start
+```
 
-### `npm run build`
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🏗️ Project Structure
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+src/
+├── assets/            # Static files (e.g., elevator image, sound)
+├── classes/           # Elevator, Floor, Building logic
+├── components/        # UI components
+│   ├── elevator-component/
+│   └── setting/
+├── constants.ts       # Global constants like durations and sizes
+├── utils.ts           # Helper utilities (e.g., sleep)
+├── App.tsx            # Main entry point
+└── index.tsx          # React bootstrap
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ⚙️ Customization
 
-### `npm run eject`
+- Change elevator/floor parameters via the settings modal on app load or by clicking the gear icon (⚙️) later.
+- You can adjust constants (speed, stop duration, etc.) in `src/constants.ts`.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 🔊 Notes
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Audio only plays after user interaction due to browser policies.
+- Works best in Chromium-based browsers.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 🪪 License
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This project is open-source and free to use for educational and non-commercial purposes.
