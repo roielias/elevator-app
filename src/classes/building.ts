@@ -2,6 +2,8 @@
 import { Elevator } from "./elevator";
 import { Floor } from "./floor";
 import { FLOOR_DURATION, STOP_DURATION } from "../constants";
+import { FloorFactory } from "../factory/floor.factory";
+import { ElevatorFactory } from "../factory/elevator.factory";
 
 export class Building {
   id: string;
@@ -10,9 +12,11 @@ export class Building {
 
   constructor(id: string, numberOfFloors: number, elevatorIds: string[]) {
     this.id = id;
-    this.floors = [...Array(numberOfFloors)].map((_, i) => new Floor(i));
+    this.floors = [...Array(numberOfFloors)].map((_, i) =>
+      FloorFactory.create(i)
+    );
     this.elevators = elevatorIds.map((id) => {
-      const elevator = new Elevator(id);
+      const elevator = ElevatorFactory.create(id);
       elevator.exactPosition = 0;
       return elevator;
     });

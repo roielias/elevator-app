@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as S from "./styled";
 import { FLOOR_BORDER_HEIGHT } from "../../constants";
 import { Building } from "../../classes/building";
+import { BuildingFactory } from "../../factory/building.factory";
 
 interface BuildingConfig {
   id: string;
@@ -20,9 +21,8 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
   >({});
 
   useEffect(() => {
-    const newBuildings = config.map(
-      ({ id, numberOfFloors, elevatorIds }) =>
-        new Building(id, numberOfFloors, elevatorIds)
+    const newBuildings = config.map(({ id, numberOfFloors, elevatorIds }) =>
+      BuildingFactory.create(id, numberOfFloors, elevatorIds)
     );
     setBuildings(newBuildings);
 
