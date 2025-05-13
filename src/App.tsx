@@ -30,9 +30,7 @@ function App() {
         />
       )}
 
-      {buildingConfig.length > 0 && (
-        <ElevatorComponent config={buildingConfig} />
-      )}
+      <ElevatorComponent config={buildingConfig} />
     </div>
   );
 }
