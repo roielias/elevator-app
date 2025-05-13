@@ -4,24 +4,31 @@ import elvImg from "../../assets/elv.png";
 export const Container = styled.div`
   display: flex;
   justify-content: space-around;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 20px;
   font-family: sans-serif;
   align-items: flex-end;
   min-height: 100vh;
+  padding-bottom: 20px;
 `;
 
 export const Building = styled.div<{ floorCount: number }>`
   display: flex;
+  justify-content: flex-end;
   flex-direction: column;
   align-items: center;
   width: 300px;
+  min-height: ${({ floorCount }) => floorCount * 110}px;
   height: ${({ floorCount }) => floorCount * 110}px;
   border: 2px solid #ccc;
   padding: 10px;
   border-radius: 8px;
   background-color: #f0f0f0;
   position: relative;
+  box-sizing: border-box;
+  overflow-y: visible;
+  flex-shrink: 0;
 `;
 
 export const FloorRow = styled.div`
@@ -39,6 +46,8 @@ export const FloorRow = styled.div`
     linear-gradient(155deg, #d00 23px, transparent 23px);
   background-size: 58px 58px;
   background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 export const FloorTimerBox = styled.div`
@@ -68,13 +77,13 @@ export const FloorLabel = styled.div`
 
 export const ElevatorTrack = styled.div<{ floorCount: number }>`
   position: absolute;
-  left: calc(100% - 105px);
-  transform: translateX(-50%);
+  right: 20px;
   width: 30px;
   height: ${({ floorCount }) => floorCount * 110}px;
   z-index: 10;
   pointer-events: none;
   bottom: 0;
+  max-height: 100%;
 `;
 
 export const ElevatorBox = styled.div<{
@@ -94,9 +103,9 @@ export const ElevatorBox = styled.div<{
   transition: bottom ${({ duration }) => duration}s linear;
   bottom: ${({ floorPosition, floorHeight, borderHeight, offset }) =>
     floorPosition !== undefined
-      ? `calc(${floorPosition} * ${floorHeight - borderHeight}px + ${
-          offset ?? 0
-        }px)`
+      ? `calc(${floorPosition} * ${floorHeight}px - ${floorPosition} * ${
+          borderHeight / 2
+        }px + ${offset ?? 0}px)`
       : "0px"};
 `;
 
@@ -123,6 +132,7 @@ export const Shaft = styled.div`
   height: 100%;
   background-color: #ccc;
 `;
+
 export const MetalButton = styled.button<{
   variant?: "radial" | "linear";
   isCalling?: boolean;
@@ -130,7 +140,7 @@ export const MetalButton = styled.button<{
   position: relative;
   margin: 5px auto;
   outline: none;
-  font: bold 4em "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+  font: bold 1.5em "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
   text-align: center;
   color: hsla(0, 0%, 20%, 1);
   text-shadow: hsla(0, 0%, 40%, 0.5) 0 -1px 0, hsla(0, 0%, 100%, 0.6) 0 2px 1px;
@@ -142,6 +152,11 @@ export const MetalButton = styled.button<{
     inset hsla(0, 0%, 100%, 0.7) 0 2px 1px 7px,
     hsla(0, 0%, 0%, 0) 0 -5px 6px 4px, hsla(0, 0%, 100%, 0) 0 5px 6px 4px;
   transition: background-color 0.3s;
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  cursor: pointer;
+  border: none;
 
   ${({ variant }) =>
     variant === "radial" &&

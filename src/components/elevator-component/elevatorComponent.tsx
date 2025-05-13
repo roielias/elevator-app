@@ -14,12 +14,17 @@ interface ElevatorComponentProps {
   config: BuildingConfig[];
 }
 
+/**
+ * Main elevator simulation component
+ * @param config array of building configurations (id, number of floors, elevator IDs)
+ */
 const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [elevatorPositions, setElevatorPositions] = useState<
     Record<string, number>
   >({});
 
+  // Initialize buildings and elevators
   useEffect(() => {
     const newBuildings = config.map(({ id, numberOfFloors, elevatorIds }) =>
       BuildingFactory.create(id, numberOfFloors, elevatorIds)
@@ -32,6 +37,7 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     setElevatorPositions(initialPositions);
   }, [config]);
 
+  // Subscribe to elevator position updates
   useEffect(() => {
     buildings.forEach((building) => {
       building.elevators.forEach((el) => {
@@ -45,8 +51,9 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     });
   }, [buildings]);
 
+  // Update floor timers every 100ms
   useEffect(() => {
-    const interval = 100; // 100 milliseconds
+    const interval = 100;
     const timer = setInterval(() => {
       setBuildings((prev) => {
         prev.forEach((b) => b.updateTimers(interval / 1000));
@@ -56,6 +63,11 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     return () => clearInterval(timer);
   }, []);
 
+  /**
+   * Handles call button press for a specific building and floor
+   * @param buildingId ID of the building
+   * @param floorNumber number of the floor
+   */
   const handleCall = (buildingId: string, floorNumber: number) => {
     const building = buildings.find((b) => b.id === buildingId);
     if (building) {
@@ -63,12 +75,9 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     }
   };
 
-  const floorHeight = 110; // Full height of a floor row including border
-  const elevatorHeight = 30; // Height of the elevator image (used for centering)
-  const visibleFloorHeight = floorHeight - FLOOR_BORDER_HEIGHT;
-  // Calculate the vertical offset to center the elevator (30px tall) inside the visible part of the floor (floorHeight - border)
-  // This ensures the elevator is visually centered within each floor row
-  const offset = visibleFloorHeight / 2 - elevatorHeight / 2;
+  const floorHeight = 110;
+  const elevatorHeight = 30;
+  const offset = 35; // vertical adjustment to center the elevator visually
 
   return (
     <S.Container>
