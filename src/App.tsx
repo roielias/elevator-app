@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import ElevatorComponent from "./components/elevator-component/elevatorComponent";
-import SettingsModal from "./components/setting-modal/settingMModal";
+import SettingsModal from "./components/setting-modal/settingModal";
 import styled from "styled-components";
 
 type BuildingConfig = {
