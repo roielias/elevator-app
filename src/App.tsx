@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
-import ElevatorComponent from "./components/elevator-component/elevatorComponent";
+import ElevatorComponent from "./components/elevator-component/MainComponent";
 import SettingsModal from "./components/setting-modal/settingModal";
 import styled from "styled-components";
 
