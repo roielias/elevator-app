@@ -57,12 +57,19 @@ export class Building {
   handleCall(floorNumber: number) {
     const { best, eta } = this.selectElevator(floorNumber);
     const floor = this.floors.find((f) => f.number === floorNumber);
-    if (floor && floor.timer === 0) {
+    if (floor && !floor.isCalling) {
       floor.setTimer(eta);
       best.addTarget(floor.number);
       best.start();
       const remove = best.addListener((elevator) => {
-        if (elevator.currentFloor === floor.number) {
+        // Check if elevator is currently at this floor AND it's currently stopping
+        // AND either this is the current target or we've just finished processing targets
+        if (
+          elevator.currentFloor === floor.number &&
+          elevator.isCurrentlyStopping &&
+          (elevator.targetFloors[0] === floor.number ||
+            elevator.targetFloors.length === 0)
+        ) {
           floor.clearCall();
           remove();
         }
@@ -94,7 +101,7 @@ export class Building {
     const isCurrentlyStopping =
       elevator.targetFloors.length > 0 &&
       elevator.currentFloor === elevator.targetFloors[0] &&
-      elevator.isMoving;
+      elevator.isCurrentlyStopping;
 
     if (isCurrentlyStopping) {
       time += STOP_DURATION;
@@ -103,7 +110,11 @@ export class Building {
     for (let i = 0; i < path.length; i++) {
       const f = path[i];
       time += Math.abs(current - f) * FLOOR_DURATION;
+
+      // Only add stop duration for floors that are before our target floor
       if (f === floor) break;
+
+      // Add stop time for intermediate floors
       time += STOP_DURATION;
       current = f;
     }

@@ -26,6 +26,7 @@ export class Elevator {
   exactPosition: number = 0;
   targetFloors: number[] = [];
   isMoving: boolean = false;
+  isCurrentlyStopping: boolean = false;
 
   /** Subscribers to state changes */
   listeners: ((elevator: Elevator) => void)[] = [];
@@ -104,11 +105,17 @@ export class Elevator {
 
       this.exactPosition = endPosition;
       this.currentFloor = next;
+
+      // Set the flag indicating the elevator is now stopping at a floor
+      this.isCurrentlyStopping = true;
       this.notify();
       playSound();
 
-      await sleep(STOP_DURATION * 1000); // wait at floor before continuing (convert seconds to ms)
+      await sleep(STOP_DURATION * 1000); // wait at floor before continuing
       this.targetFloors.shift();
+
+      // Reset the stopping flag
+      this.isCurrentlyStopping = false;
       this.notify();
     }
 
