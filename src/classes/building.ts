@@ -103,10 +103,6 @@ export class Building {
       elevator.currentFloor === elevator.targetFloors[0] &&
       elevator.isCurrentlyStopping;
 
-    if (isCurrentlyStopping) {
-      time += STOP_DURATION;
-    }
-
     for (let i = 0; i < path.length; i++) {
       const f = path[i];
       time += Math.abs(current - f) * FLOOR_DURATION;
@@ -114,9 +110,16 @@ export class Building {
       // Only add stop duration for floors that are before our target floor
       if (f === floor) break;
 
-      // Add stop time for intermediate floors
-      time += STOP_DURATION;
+      // Add stop duration for intermediate floors, but skip if this is the currently stopping floor
+      if (!(isCurrentlyStopping && i === 0)) {
+        time += STOP_DURATION;
+      }
       current = f;
+    }
+
+    // Add stop duration for the initial stopping floor if applicable
+    if (isCurrentlyStopping) {
+      time += STOP_DURATION;
     }
 
     return Math.ceil(time);
