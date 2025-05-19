@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import * as S from "./styled";
-import { FLOOR_BORDER_HEIGHT } from "../../constants";
 import { Building } from "../../classes/building";
 import { BuildingFactory } from "../../factory/building.factory";
 import BuildingView from "./BuildingView";
