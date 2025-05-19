@@ -1,7 +1,8 @@
 import React from "react";
 import { Building } from "../../classes/building";
+import ElevatorView from "./ElevatorView";
+import FloorRowView from "./FloorRowView";
 import * as S from "./styled";
-import { FLOOR_BORDER_HEIGHT } from "../../constants";
 
 interface BuildingViewProps {
   building: Building;
@@ -9,46 +10,36 @@ interface BuildingViewProps {
   onCall: (floorNumber: number) => void;
 }
 
+/**
+ * BuildingView component (refactored)
+ * Displays the full building using modular ElevatorView and FloorRowView components
+ */
 const BuildingView: React.FC<BuildingViewProps> = ({
   building,
   elevatorPositions,
   onCall,
 }) => {
-  const floorHeight = 110;
-  const elevatorHeight = 30;
-  const offset = 35;
-
   return (
-    <S.Building key={building.id} floorCount={building.floors.length}>
+    <S.Building key={building.id} $floorCount={building.floors.length}>
       <h3>{building.id}</h3>
 
       {building.elevators.map((elevator) => (
-        <S.ElevatorTrack key={elevator.id} floorCount={building.floors.length}>
-          <S.ElevatorBox
-            floorPosition={elevatorPositions[elevator.id]}
-            duration={0.03}
-            floorHeight={floorHeight}
-            borderHeight={FLOOR_BORDER_HEIGHT}
-            offset={offset}
-          />
-        </S.ElevatorTrack>
+        <ElevatorView
+          key={elevator.id}
+          elevatorId={elevator.id}
+          floorCount={building.floors.length}
+          position={elevatorPositions[elevator.id]}
+        />
       ))}
 
       {[...building.floors].reverse().map((floor) => (
-        <S.FloorRow key={floor.number}>
-          <S.FloorTimerBox>
-            {floor.timer > 0 ? `${floor.timer.toFixed(2)}s` : ""}
-          </S.FloorTimerBox>
-
-          <S.MetalButton
-            isCalling={floor.isCalling}
-            onClick={() => onCall(floor.number)}
-          >
-            {floor.number}
-          </S.MetalButton>
-
-          <S.Shaft />
-        </S.FloorRow>
+        <FloorRowView
+          key={floor.number}
+          floorNumber={floor.number}
+          timer={floor.timer}
+          isCalling={floor.isCalling}
+          onCall={() => onCall(floor.number)}
+        />
       ))}
     </S.Building>
   );

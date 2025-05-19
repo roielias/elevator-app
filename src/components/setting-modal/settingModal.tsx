@@ -40,7 +40,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onSubmit, onClose }) => {
   const handleSubmit = () => {
     const config = buildings.map((b, i) => ({
       id: `Building-${i + 1}`,
-      numberOfFloors: b.floors,
+      numberOfFloors: b.floors + 1,
       elevatorIds: Array.from(
         { length: b.elevators },
         (_, j) => `B${i + 1}-E${j + 1}`

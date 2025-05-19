@@ -28,7 +28,7 @@ const FloorRowView: React.FC<FloorRowViewProps> = ({
         {timer > 0 ? `${timer.toFixed(2)}s` : ""}
       </S.FloorTimerBox>
 
-      <S.MetalButton isCalling={isCalling} onClick={onCall}>
+      <S.MetalButton $isCalling={isCalling} onClick={onCall}>
         {floorNumber}
       </S.MetalButton>
 

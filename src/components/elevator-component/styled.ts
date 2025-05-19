@@ -13,14 +13,14 @@ export const Container = styled.div`
   padding-bottom: 20px;
 `;
 
-export const Building = styled.div<{ floorCount: number }>`
+export const Building = styled.div<{$floorCount: number}>`
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
   align-items: center;
   width: 300px;
-  min-height: ${({ floorCount }) => floorCount * 110}px;
-  height: ${({ floorCount }) => floorCount * 110}px;
+  min-height: ${({ $floorCount }) => $floorCount * 110}px;
+  height: ${({ $floorCount }) => $floorCount * 110}px;
   border: 2px solid #ccc;
   padding: 10px;
   border-radius: 8px;
@@ -75,11 +75,11 @@ export const FloorLabel = styled.div`
   font-weight: bold;
 `;
 
-export const ElevatorTrack = styled.div<{ floorCount: number }>`
+export const ElevatorTrack = styled.div<{$floorCount: number}>`
   position: absolute;
   right: 20px;
   width: 30px;
-  height: ${({ floorCount }) => floorCount * 110}px;
+  height: ${({ $floorCount }) => $floorCount * 110}px;
   z-index: 10;
   pointer-events: none;
   bottom: 0;
@@ -87,11 +87,11 @@ export const ElevatorTrack = styled.div<{ floorCount: number }>`
 `;
 
 export const ElevatorBox = styled.div<{
-  floorPosition?: number;
-  duration: number;
-  floorHeight: number;
-  borderHeight: number;
-  offset?: number;
+  $floorPosition?: number;
+  $duration: number;
+  $floorHeight: number;
+  $borderHeight: number;
+  $offset?: number;
 }>`
   width: 30px;
   height: 30px;
@@ -100,12 +100,12 @@ export const ElevatorBox = styled.div<{
   background-position: center;
   border-radius: 5px;
   position: absolute;
-  transition: bottom ${({ duration }) => duration}s linear;
-  bottom: ${({ floorPosition, floorHeight, borderHeight, offset }) =>
-    floorPosition !== undefined
-      ? `calc(${floorPosition} * ${floorHeight}px - ${floorPosition} * ${
-          borderHeight / 2
-        }px + ${offset ?? 0}px)`
+  transition: bottom ${({ $duration }) => $duration}s linear;
+  bottom: ${({ $floorPosition, $floorHeight, $borderHeight, $offset }) =>
+    $floorPosition !== undefined
+      ? `calc(${$floorPosition} * ${$floorHeight}px - ${$floorPosition} * ${
+          $borderHeight / 2
+        }px + ${$offset ?? 0}px)`
       : "0px"};
 `;
 
@@ -135,7 +135,7 @@ export const Shaft = styled.div`
 
 export const MetalButton = styled.button<{
   variant?: "radial" | "linear";
-  isCalling?: boolean;
+  $isCalling?: boolean;
 }>`
   position: relative;
   margin: 5px auto;
@@ -144,8 +144,8 @@ export const MetalButton = styled.button<{
   text-align: center;
   color: hsla(0, 0%, 20%, 1);
   text-shadow: hsla(0, 0%, 40%, 0.5) 0 -1px 0, hsla(0, 0%, 100%, 0.6) 0 2px 1px;
-  background-color: ${({ isCalling }) =>
-    isCalling ? "limegreen" : "hsl(0, 0%, 90%)"};
+  background-color: ${({ $isCalling }) =>
+    $isCalling ? "limegreen" : "hsl(0, 0%, 90%)"};
   box-shadow: inset hsla(0, 0%, 15%, 1) 0 0px 0px 4px,
     inset hsla(0, 0%, 15%, 0.8) 0 -1px 5px 4px,
     inset hsla(0, 0%, 0%, 0.25) 0 -1px 0px 7px,

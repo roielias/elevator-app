@@ -32,6 +32,7 @@ export class Floor {
   clearCall() {
     this.isCalling = false;
     this.timer = 0;
+    this.reset()
   }
 
   /**

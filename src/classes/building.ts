@@ -14,10 +14,9 @@ export class Building {
   floors: Floor[] = [];
 
   /**
-   * Initializes a new building instance
-   * @param id Unique building identifier
-   * @param numberOfFloors Number of floors in the building
-   * @param elevatorIds Array of elevator IDs to create elevators
+   * @param id
+   * @param numberOfFloors
+   * @param elevatorIds
    */
   constructor(id: string, numberOfFloors: number, elevatorIds: string[]) {
     this.id = id;
@@ -98,10 +97,7 @@ export class Building {
 
     if (!path.includes(floor)) path.push(floor);
 
-    const isCurrentlyStopping =
-      elevator.targetFloors.length > 0 &&
-      elevator.currentFloor === elevator.targetFloors[0] &&
-      elevator.isCurrentlyStopping;
+    const isCurrentlyStopping = elevator.isCurrentlyStopping;
 
     for (let i = 0; i < path.length; i++) {
       const f = path[i];
@@ -110,18 +106,14 @@ export class Building {
       // Only add stop duration for floors that are before our target floor
       if (f === floor) break;
 
-      // Add stop duration for intermediate floors, but skip if this is the currently stopping floor
-      if (!(isCurrentlyStopping && i === 0)) {
+      // Skip stop duration if already stopping at the first target
+      const isFirstAndAlreadyStopping = i === 0 && isCurrentlyStopping;
+      if (!isFirstAndAlreadyStopping) {
         time += STOP_DURATION;
       }
       current = f;
     }
 
-    // Add stop duration for the initial stopping floor if applicable
-    if (isCurrentlyStopping) {
-      time += STOP_DURATION;
-    }
-
-    return Math.ceil(time);
+    return Math.round(time * 10) / 10;
   }
 }

@@ -24,13 +24,13 @@ const ElevatorView: React.FC<ElevatorViewProps> = ({
   const offset = 35;
 
   return (
-    <S.ElevatorTrack key={elevatorId} floorCount={floorCount}>
+    <S.ElevatorTrack key={elevatorId} $floorCount={floorCount}>
       <S.ElevatorBox
-        floorPosition={position}
-        duration={0.03}
-        floorHeight={floorHeight}
-        borderHeight={FLOOR_BORDER_HEIGHT}
-        offset={offset}
+        $floorPosition={position}
+        $duration={0.03}
+        $floorHeight={floorHeight}
+        $borderHeight={FLOOR_BORDER_HEIGHT}
+        $offset={offset}
       />
     </S.ElevatorTrack>
   );
