@@ -1,6 +1,15 @@
 import styled, { keyframes, css } from "styled-components";
 import elvImg from "../../assets/elv.png";
 
+const computeBottom = (
+  floorPosition: number,
+  floorHeight: number,
+  offset: number
+) => {
+  const value = floorPosition * floorHeight + offset;
+  return `${Math.round(value)}px`;
+};
+
 export const Container = styled.div`
   display: flex;
   justify-content: space-around;
@@ -13,14 +22,12 @@ export const Container = styled.div`
   padding-bottom: 20px;
 `;
 
-export const Building = styled.div<{$floorCount: number}>`
+export const Building = styled.div<{ $floorCount: number }>`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   width: 300px;
-  min-height: ${({ $floorCount }) => $floorCount * 110}px;
-  height: ${({ $floorCount }) => $floorCount * 110}px;
   border: 2px solid #ccc;
   padding: 10px;
   border-radius: 8px;
@@ -36,6 +43,7 @@ export const FloorRow = styled.div`
   grid-template-columns: 60px 1fr 30px;
   align-items: center;
   height: 110px;
+  flex-shrink: 0;
   position: relative;
   border-bottom: 7px solid black;
   padding: 0 10px;
@@ -75,7 +83,7 @@ export const FloorLabel = styled.div`
   font-weight: bold;
 `;
 
-export const ElevatorTrack = styled.div<{$floorCount: number}>`
+export const ElevatorTrack = styled.div<{ $floorCount: number }>`
   position: absolute;
   right: 20px;
   width: 30px;
@@ -90,7 +98,6 @@ export const ElevatorBox = styled.div<{
   $floorPosition?: number;
   $duration: number;
   $floorHeight: number;
-  $borderHeight: number;
   $offset?: number;
 }>`
   width: 30px;
@@ -101,11 +108,10 @@ export const ElevatorBox = styled.div<{
   border-radius: 5px;
   position: absolute;
   transition: bottom ${({ $duration }) => $duration}s linear;
-  bottom: ${({ $floorPosition, $floorHeight, $borderHeight, $offset }) =>
+
+  bottom: ${({ $floorPosition, $floorHeight, $offset }) =>
     $floorPosition !== undefined
-      ? `calc(${$floorPosition} * ${$floorHeight}px - ${$floorPosition} * ${
-          $borderHeight / 2
-        }px + ${$offset ?? 0}px)`
+      ? computeBottom($floorPosition, $floorHeight, $offset ?? 0)
       : "0px"};
 `;
 

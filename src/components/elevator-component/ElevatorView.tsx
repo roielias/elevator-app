@@ -1,6 +1,5 @@
 import React from "react";
 import * as S from "./styled";
-import { FLOOR_BORDER_HEIGHT } from "../../constants";
 
 /**
  * ElevatorView component
@@ -29,7 +28,6 @@ const ElevatorView: React.FC<ElevatorViewProps> = ({
         $floorPosition={position}
         $duration={0.03}
         $floorHeight={floorHeight}
-        $borderHeight={FLOOR_BORDER_HEIGHT}
         $offset={offset}
       />
     </S.ElevatorTrack>
