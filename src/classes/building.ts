@@ -14,9 +14,10 @@ export class Building {
   floors: Floor[] = [];
 
   /**
-   * @param id
-   * @param numberOfFloors
-   * @param elevatorIds
+   * Initializes a new building with floors and elevators.
+   * @param id Unique building ID
+   * @param numberOfFloors Total number of floors in the building
+   * @param elevatorIds List of elevator IDs to instantiate
    */
   constructor(id: string, numberOfFloors: number, elevatorIds: string[]) {
     this.id = id;
@@ -31,9 +32,10 @@ export class Building {
   }
 
   /**
-   * Selects the best elevator for a requested floor based on estimated arrival time.
+   * Chooses the best elevator to handle a call to a given floor.
+   * Selection is based on estimated arrival time using current position and remaining stop time.
    * @param floor Target floor number
-   * @returns The best elevator and estimated arrival time
+   * @returns The best elevator and estimated arrival time in seconds
    */
   selectElevator(floor: number) {
     let best = this.elevators[0];
@@ -50,7 +52,7 @@ export class Building {
   }
 
   /**
-   * Handles an elevator call from a specific floor
+   * Triggers an elevator to handle a floor call, and sets up listener to clear call state.
    * @param floorNumber The floor number where the call originates
    */
   handleCall(floorNumber: number) {
@@ -60,9 +62,9 @@ export class Building {
       floor.setTimer(eta);
       best.addTarget(floor.number);
       best.start();
+
       const remove = best.addListener((elevator) => {
-        // Check if elevator is currently at this floor AND it's currently stopping
-        // AND either this is the current target or we've just finished processing targets
+        // Clear call only when elevator arrives and stops at the correct floor
         if (
           elevator.currentFloor === floor.number &&
           elevator.isCurrentlyStopping &&
@@ -77,24 +79,26 @@ export class Building {
   }
 
   /**
-   * Updates the timer on all floors
-   * @param deltaSeconds Time delta in seconds to decrement from floor timers
+   * Decrements floor timers.
+   * @param deltaSeconds Number of seconds to subtract from each active floor timer
    */
   updateTimers(deltaSeconds: number) {
     this.floors.forEach((floor) => floor.updateTimer(deltaSeconds));
   }
 
   /**
-   * Estimates the time (in seconds) it will take for a given elevator to arrive at a floor
+   * Estimates total time for elevator to reach a requested floor.
+   * Time is based on distance, stop durations, and — if currently stopping — the remaining stop time.
    * @param elevator Elevator to evaluate
    * @param floor Target floor number
-   * @returns Estimated time in seconds
+   * @returns Estimated arrival time in seconds (rounded to 1 decimal place)
    */
   private estimateArrival(elevator: Elevator, floor: number) {
     let time = 0;
     let current = elevator.exactPosition;
     const path = [...elevator.targetFloors];
 
+    // Include target floor if it's not already in the elevator's queue
     if (!path.includes(floor)) path.push(floor);
 
     const isCurrentlyStopping = elevator.isCurrentlyStopping;
@@ -103,14 +107,16 @@ export class Building {
       const f = path[i];
       time += Math.abs(current - f) * FLOOR_DURATION;
 
-      // Only add stop duration for floors that are before our target floor
+      // Stop counting when we reach the evaluated target floor
       if (f === floor) break;
 
-      // Skip stop duration if already stopping at the first target
-      const isFirstAndAlreadyStopping = i === 0 && isCurrentlyStopping;
-      if (!isFirstAndAlreadyStopping) {
+      // For the first stop, if elevator is currently stopping, add only the remaining stop time
+      if (i === 0 && isCurrentlyStopping) {
+        time += elevator.remainingStopTime;
+      } else {
         time += STOP_DURATION;
       }
+
       current = f;
     }
 
