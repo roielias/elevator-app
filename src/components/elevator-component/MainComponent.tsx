@@ -10,16 +10,26 @@ interface BuildingConfig {
   elevatorIds: string[];
 }
 
-interface ElevatorComponentProps {
+interface MainComponentProps {
   config: BuildingConfig[];
 }
 
-const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
+/**
+ * MainComponent:
+ * - Creates building instances based on config
+ * - Manages elevator positions state
+ * - Renders BuildingView components with up-to-date info
+ */
+const MainComponent: React.FC<MainComponentProps> = ({ config }) => {
+  // State holding building instances
   const [buildings, setBuildings] = useState<Building[]>([]);
+
+  // State mapping elevator IDs to their current positions
   const [elevatorPositions, setElevatorPositions] = useState<
     Record<string, number>
   >({});
 
+  // Initialize buildings and elevator positions on config change
   useEffect(() => {
     const newBuildings = config.map(({ id, numberOfFloors, elevatorIds }) =>
       BuildingFactory.create(id, numberOfFloors, elevatorIds)
@@ -32,6 +42,7 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     setElevatorPositions(initialPositions);
   }, [config]);
 
+  // Subscribe to elevator position updates and update state accordingly
   useEffect(() => {
     buildings.forEach((building) => {
       building.elevators.forEach((el) => {
@@ -45,17 +56,20 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
     });
   }, [buildings]);
 
+  // Periodically update timers for all buildings (e.g. elevator movements)
   useEffect(() => {
-    const interval = 100;
+    const interval = 100; // ms
     const timer = setInterval(() => {
       setBuildings((prev) => {
         prev.forEach((b) => b.updateTimers(interval / 1000));
         return [...prev];
       });
     }, interval);
+
     return () => clearInterval(timer);
   }, []);
 
+  // Handler for calling elevator in a specific building and floor
   const handleCall = (buildingId: string, floorNumber: number) => {
     const building = buildings.find((b) => b.id === buildingId);
     if (building) {
@@ -78,4 +92,4 @@ const ElevatorComponent: React.FC<ElevatorComponentProps> = ({ config }) => {
   );
 };
 
-export default ElevatorComponent;
+export default MainComponent;

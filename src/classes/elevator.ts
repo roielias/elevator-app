@@ -1,22 +1,5 @@
 import { FLOOR_DURATION, STOP_DURATION } from "../constants";
-import { sleep } from "../utils";
-import dingSoundFile from "../assets/ding.mp3";
-
-// Ding sound effect played when elevator arrives at a floor
-const dingAudio = new Audio(dingSoundFile);
-dingAudio.preload = "auto";
-
-// Plays a 'ding' sound to indicate elevator arrival
-const playSound = () => {
-  try {
-    dingAudio.currentTime = 0;
-    dingAudio.play().catch((err) => {
-      console.warn("Audio playback blocked:", err);
-    });
-  } catch (err) {
-    console.warn("Audio error:", err);
-  }
-};
+import { sleep, playSound } from "../utils";
 
 /**
  * Represents a single elevator and its behavior.
@@ -29,7 +12,6 @@ export class Elevator {
   isMoving: boolean = false; // True while elevator is in motion
   isCurrentlyStopping: boolean = false; // True while elevator is waiting at a floor
   remainingStopTime: number = 0; // Remaining time to stay stopped at current floor (in seconds)
-
   /** Subscribers to elevator state changes (used by UI to react to state updates) */
   listeners: ((elevator: Elevator) => void)[] = [];
 
