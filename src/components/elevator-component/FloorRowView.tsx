@@ -8,12 +8,14 @@ import * as S from "./styled";
  * @param timer current timer value for the floor
  * @param isCalling boolean flag indicating if the floor is calling
  * @param onCall function to handle call button click
+ * @param isElevatorHere conditional to check if the elevator is stopping in this floor now
  */
 interface FloorRowViewProps {
   floorNumber: number;
   timer: number;
   isCalling: boolean;
   onCall: () => void;
+  isElevatorHere: boolean;
 }
 
 const FloorRowView: React.FC<FloorRowViewProps> = ({
@@ -21,6 +23,7 @@ const FloorRowView: React.FC<FloorRowViewProps> = ({
   timer,
   isCalling,
   onCall,
+  isElevatorHere,
 }) => {
   return (
     <S.FloorRow key={floorNumber}>
@@ -28,7 +31,11 @@ const FloorRowView: React.FC<FloorRowViewProps> = ({
         {timer > 0 ? `${timer.toFixed(2)}s` : ""}
       </S.FloorTimerBox>
 
-      <S.MetalButton $isCalling={isCalling} onClick={onCall}>
+      <S.MetalButton
+        $isCalling={isCalling}
+        onClick={onCall}
+        disabled={isElevatorHere}
+      >
         {floorNumber}
       </S.MetalButton>
 

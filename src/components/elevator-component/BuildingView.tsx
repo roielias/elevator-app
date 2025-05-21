@@ -32,15 +32,22 @@ const BuildingView: React.FC<BuildingViewProps> = ({
         />
       ))}
 
-      {[...building.floors].reverse().map((floor) => (
-        <FloorRowView
-          key={floor.number}
-          floorNumber={floor.number}
-          timer={floor.timer}
-          isCalling={floor.isCalling}
-          onCall={() => onCall(floor.number)}
-        />
-      ))}
+      {[...building.floors].reverse().map((floor) => {
+        const isElevatorHere = building.elevators.some(
+          (elevator) => elevatorPositions[elevator.id] === floor.number
+        );
+
+        return (
+          <FloorRowView
+            key={floor.number}
+            floorNumber={floor.number}
+            timer={floor.timer}
+            isCalling={floor.isCalling}
+            onCall={() => onCall(floor.number)}
+            isElevatorHere={isElevatorHere}
+          />
+        );
+      })}
     </S.Building>
   );
 };

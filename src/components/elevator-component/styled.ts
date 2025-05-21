@@ -177,5 +177,7 @@ export const MetalButton = styled.button<{
         hsla(0, 0%, 100%, 0.5) 0%,
         hsla(0, 0%, 100%, 0) 100%
       );
-    `}
+    `} &:disabled {
+    cursor: not-allowed;
+  }
 `;
