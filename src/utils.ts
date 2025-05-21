@@ -1,4 +1,4 @@
-import dingSoundFile from "../assets/ding.mp3";
+import dingSoundFile from "./assets/ding.mp3";
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
