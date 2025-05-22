@@ -1,6 +1,10 @@
 import styled, { keyframes, css } from "styled-components";
 import elvImg from "../../assets/elv.png";
 
+/**
+ * Utility to calculate the bottom offset in pixels
+ * based on floor number, height, and optional offset.
+ */
 const computeBottom = (
   floorPosition: number,
   floorHeight: number,
@@ -10,6 +14,7 @@ const computeBottom = (
   return `${Math.round(value)}px`;
 };
 
+/** Main container for all buildings */
 export const Container = styled.div`
   display: flex;
   justify-content: space-around;
@@ -22,6 +27,7 @@ export const Container = styled.div`
   padding-bottom: 20px;
 `;
 
+/** Single building wrapper (visual block) */
 export const Building = styled.div<{ $floorCount: number }>`
   display: flex;
   justify-content: center;
@@ -38,6 +44,7 @@ export const Building = styled.div<{ $floorCount: number }>`
   flex-shrink: 0;
 `;
 
+/** One horizontal row = a floor with label, button, and shaft */
 export const FloorRow = styled.div`
   display: grid;
   grid-template-columns: 60px 1fr 30px;
@@ -58,6 +65,7 @@ export const FloorRow = styled.div`
   box-sizing: border-box;
 `;
 
+/** Displays remaining stop time in floor row */
 export const FloorTimerBox = styled.div`
   width: 50px;
   height: 40px;
@@ -72,10 +80,12 @@ export const FloorTimerBox = styled.div`
   border-radius: 4px;
 `;
 
+/** Wrapper for the call button in the floor row */
 export const CallButtonWrapper = styled.div`
   margin: 0 10px;
 `;
 
+/** Label showing floor number */
 export const FloorLabel = styled.div`
   width: 80px;
   text-align: right;
@@ -83,6 +93,10 @@ export const FloorLabel = styled.div`
   font-weight: bold;
 `;
 
+/**
+ * Elevator shaft container (the vertical rail)
+ * Positioned from bottom so elevator uses bottom offset.
+ */
 export const ElevatorTrack = styled.div<{ $floorCount: number }>`
   position: absolute;
   right: 20px;
@@ -94,19 +108,25 @@ export const ElevatorTrack = styled.div<{ $floorCount: number }>`
   max-height: 100%;
 `;
 
+/**
+ * ElevatorBox
+ * Represents the elevator box.
+ * Uses CSS `bottom` for animation position.
+ */
 export const ElevatorBox = styled.div<{
   $floorPosition?: number;
   $duration: number;
   $floorHeight: number;
   $offset?: number;
 }>`
+  position: absolute;
   width: 30px;
   height: 30px;
   background-image: url(${elvImg});
   background-size: cover;
   background-position: center;
   border-radius: 5px;
-  position: absolute;
+
   transition: bottom ${({ $duration }) => $duration}s linear;
 
   bottom: ${({ $floorPosition, $floorHeight, $offset }) =>
@@ -115,6 +135,7 @@ export const ElevatorBox = styled.div<{
       : "0px"};
 `;
 
+/** Optional blinking animation */
 const blink = keyframes`
   0% {
     transform: scale(0.8);
@@ -126,6 +147,7 @@ const blink = keyframes`
   }
 `;
 
+/** Container for all UI controls (if any) */
 export const Controls = styled.div`
   display: flex;
   flex-direction: column;
@@ -133,12 +155,18 @@ export const Controls = styled.div`
   margin: 20px;
 `;
 
+/** Represents the shaft between elevator and floor rows */
 export const Shaft = styled.div`
   width: 30px;
   height: 100%;
   background-color: #ccc;
 `;
 
+/**
+ * Stylized round metal button for each floor
+ * @variant radial for large mode
+ * @isCalling for active state
+ */
 export const MetalButton = styled.button<{
   variant?: "radial" | "linear";
   $isCalling?: boolean;
@@ -177,7 +205,9 @@ export const MetalButton = styled.button<{
         hsla(0, 0%, 100%, 0.5) 0%,
         hsla(0, 0%, 100%, 0) 100%
       );
-    `} &:disabled {
+    `}
+
+  &:disabled {
     cursor: not-allowed;
   }
 `;
