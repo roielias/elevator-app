@@ -61,6 +61,12 @@ export class Building {
     if (floor && !floor.isCalling) {
       floor.setTimer(eta);
       best.addTarget(floor.number);
+
+      // Store start time for synchronized countdown
+      const startTime = Date.now();
+      floor.startTime = startTime;
+      floor.originalEta = eta;
+
       best.start();
 
       const remove = best.addListener((elevator) => {
@@ -79,11 +85,23 @@ export class Building {
   }
 
   /**
-   * Decrements floor timers.
+   * Updates floor timers with synchronized countdown
    * @param deltaSeconds Number of seconds to subtract from each active floor timer
    */
   updateTimers(deltaSeconds: number) {
-    this.floors.forEach((floor) => floor.updateTimer(deltaSeconds));
+    this.floors.forEach((floor) => {
+      if (floor.isCalling) {
+        // If floor has synchronized start time, use real elapsed time
+        if (floor.startTime && floor.originalEta) {
+          const elapsed = (Date.now() - floor.startTime) / 1000;
+          const remaining = Math.max(0, floor.originalEta - elapsed);
+          floor.timer = Math.round(remaining * 100) / 100;
+        } else {
+          // Fallback to regular delta updates
+          floor.updateTimer(deltaSeconds);
+        }
+      }
+    });
   }
 
   /**

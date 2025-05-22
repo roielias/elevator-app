@@ -6,6 +6,10 @@ export class Floor {
   timer: number = 0; // countdown timer until elevator arrives
   isCalling: boolean = false; // whether the floor is currently calling an elevator
 
+  // New properties for synchronized timing
+  startTime?: number; // timestamp when elevator call started
+  originalEta?: number; // original estimated arrival time
+
   constructor(number: number) {
     this.number = number;
   }
@@ -15,7 +19,7 @@ export class Floor {
    * @param eta Estimated time in seconds until elevator arrives
    */
   setTimer(eta: number) {
-    this.timer = eta;
+    this.timer = Math.round(eta * 100) / 100; // Round to 2 decimal places
     this.isCalling = true;
   }
 
@@ -32,7 +36,8 @@ export class Floor {
   clearCall() {
     this.isCalling = false;
     this.timer = 0;
-    this.reset()
+    this.startTime = undefined;
+    this.originalEta = undefined;
   }
 
   /**
@@ -41,7 +46,18 @@ export class Floor {
    */
   updateTimer(deltaSeconds: number) {
     if (this.timer > 0) {
-      this.timer = Math.max(0, this.timer - deltaSeconds);
+      this.timer = Math.max(
+        0,
+        Math.round((this.timer - deltaSeconds) * 100) / 100
+      );
     }
+  }
+
+  /**
+   * Sets the timer to a specific value (used for synchronized updates)
+   * @param value New timer value
+   */
+  setTimerValue(value: number) {
+    this.timer = Math.max(0, Math.round(value * 100) / 100);
   }
 }
