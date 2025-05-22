@@ -99,11 +99,13 @@ export class Elevator {
     this.exactPosition = targetFloor;
     this.notify();
 
-    // Wait for movement to complete
-    await sleep(moveDuration * 1000);
+    // Wait for movement to complete with precise timing
+    const sleepDuration = moveDuration * 1000;
+    await sleep(sleepDuration);
 
     // Update current floor when movement is complete
     this.currentFloor = targetFloor;
+    this.animationDuration = 0; // Clear transition for stop phase
     this.notify();
   }
 
@@ -119,17 +121,29 @@ export class Elevator {
 
     playSound();
 
-    // Countdown stop time with regular updates for UI
-    const updateInterval = 100; // Update every 100ms for smooth timer display
-    while (this.remainingStopTime > 0) {
-      await sleep(updateInterval);
-      this.remainingStopTime = Math.max(
-        0,
-        this.remainingStopTime - updateInterval / 1000
-      );
-      this.notify();
-    }
+    // Use precise timing instead of polling updates
+    const stopStartTime = Date.now();
+    const stopDurationMs = STOP_DURATION * 1000;
 
+    // Update timer display with high precision
+    const updateInterval = 50; // 50ms for smooth display
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - stopStartTime;
+      const remaining = Math.max(0, (stopDurationMs - elapsed) / 1000);
+
+      this.remainingStopTime = remaining;
+      this.notify();
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+      }
+    }, updateInterval);
+
+    // Wait for exact stop duration
+    await sleep(stopDurationMs);
+
+    // Ensure timer shows exactly 0
+    this.remainingStopTime = 0;
     this.isCurrentlyStopping = false;
     this.notify();
   }

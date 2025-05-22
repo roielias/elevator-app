@@ -136,18 +136,6 @@ export const ElevatorBox = styled.div<{
       : "0px"};
 `;
 
-/** Optional blinking animation */
-const blink = keyframes`
-  0% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-`;
-
 /** Container for all UI controls (if any) */
 export const Controls = styled.div`
   display: flex;

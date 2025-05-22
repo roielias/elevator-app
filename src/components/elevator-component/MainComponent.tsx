@@ -88,16 +88,22 @@ const MainComponent: React.FC<MainComponentProps> = ({ config }) => {
   }, [buildings]);
 
   /**
-   * Timer update loop for floor countdowns and stop timers
-   * Reduced frequency since we're no longer animating positions manually
+   * Timer update loop for floor countdowns
+   * Uses precise timing calculation instead of accumulated intervals
    */
   useEffect(() => {
-    const updateInterval = 100; // 100ms for smooth timer display
+    const updateInterval = 50; // 50ms for smooth timer display
+    let lastUpdateTime = Date.now();
+
     const timer = setInterval(() => {
+      const currentTime = Date.now();
+      const deltaSeconds = (currentTime - lastUpdateTime) / 1000;
+      lastUpdateTime = currentTime;
+
       setBuildings((prevBuildings) => {
-        // Update floor timers
+        // Update floor timers with precise delta
         prevBuildings.forEach((building) => {
-          building.updateTimers(updateInterval / 1000);
+          building.updateTimers(deltaSeconds);
         });
 
         // Return new array reference to trigger re-render
