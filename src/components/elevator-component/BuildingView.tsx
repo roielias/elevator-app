@@ -1,5 +1,5 @@
 import React from "react";
-import { Building } from "../../classes/building";
+import { Building } from "../../classes/Building";
 import ElevatorView from "./ElevatorView";
 import FloorRowView from "./FloorRowView";
 import * as S from "./styled";

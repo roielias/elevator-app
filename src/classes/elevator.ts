@@ -3,18 +3,24 @@ import { sleep, playSound } from "../utils";
 
 /**
  * Represents a single elevator and its behavior.
+ * Uses CSS transitions for smooth, accurate movement instead of manual animation.
  */
 export class Elevator {
   id: string;
-  currentFloor: number = 0; // Floor number as integer
-  exactPosition: number = 0; // Precise elevator position (float, for animation)
+  currentFloor: number = 0; // Current floor number (integer)
+  exactPosition: number = 0; // Precise elevator position for CSS positioning
   targetFloors: number[] = []; // Queue of target floors
   isMoving: boolean = false; // True while elevator is in motion
   isCurrentlyStopping: boolean = false; // True while elevator is waiting at a floor
-  remainingStopTime: number = 0; // Remaining time to stay stopped at current floor (in seconds)
-  currentTransitionDuration: number = 0;
+  remainingStopTime: number = 0; // Remaining time to stay stopped (seconds)
 
-  /** Subscribers to elevator state changes (used by UI to react to state updates) */
+  // New properties for CSS transition-based animation
+  animationStartPosition: number = 0; // Position where current animation started
+  animationTargetPosition: number = 0; // Target position for current animation
+  animationDuration: number = 0; // Duration of current transition (seconds)
+  animationStartTime: number = 0; // Timestamp when animation started
+
+  /** Subscribers to elevator state changes */
   listeners: ((elevator: Elevator) => void)[] = [];
 
   constructor(id: string) {
@@ -23,9 +29,8 @@ export class Elevator {
 
   /**
    * Subscribe to elevator state updates.
-   * Useful for UI to re-render in response to changes.
    * @param fn Listener callback
-   * @returns A cleanup function to remove the listener
+   * @returns Cleanup function to remove the listener
    */
   addListener(fn: (e: Elevator) => void) {
     this.listeners.push(fn);
@@ -35,14 +40,14 @@ export class Elevator {
   }
 
   /**
-   * Notifies all subscribed listeners about a change in elevator state.
+   * Notifies all subscribed listeners about state changes.
    */
   private notify() {
     this.listeners.forEach((cb) => cb(this));
   }
 
   /**
-   * Adds a floor to the elevator's queue if it's not already present.
+   * Adds a floor to the elevator's queue if not already present.
    * @param floor Floor number to visit
    */
   addTarget(floor: number) {
@@ -54,7 +59,7 @@ export class Elevator {
 
   /**
    * Begins processing the elevator's target floor queue.
-   * Animates smooth movement, handles floor stops, and plays sound on arrival.
+   * Uses CSS transitions for accurate, smooth movement.
    */
   async start() {
     if (this.isMoving || this.targetFloors.length === 0) return;
@@ -62,65 +67,81 @@ export class Elevator {
     this.isMoving = true;
     this.notify();
 
-    const updatesPerSecond = 30;
-    const intervalMs = 1000 / updatesPerSecond;
-
     while (this.targetFloors.length > 0) {
-      const next = this.targetFloors[0];
-      const startPosition = this.exactPosition;
-      const endPosition = next;
-      const totalDistance = Math.abs(startPosition - endPosition);
-      const direction = startPosition < endPosition ? 1 : -1;
-
-      // Calculate travel time and steps for animation
-      const totalTravelTime = totalDistance * FLOOR_DURATION * 1000; // ms
-      const updateInterval = 1000 / updatesPerSecond;
-      const totalUpdates = Math.max(
-        1,
-        Math.ceil(totalTravelTime / updateInterval)
-      );
-      const distancePerUpdate = totalDistance / totalUpdates;
-
-      // Move smoothly toward target floor
-      for (let i = 1; i <= totalUpdates; i++) {
-        this.exactPosition = startPosition + direction * distancePerUpdate * i;
-        const newFloor = Math.round(this.exactPosition);
-
-        if (newFloor !== this.currentFloor) {
-          this.currentFloor = newFloor;
-        }
-
-        this.notify();
-        await sleep(updateInterval);
-      }
-
-      // Snap to final position
-      this.exactPosition = endPosition;
-      this.currentFloor = next;
-
-      // Handle stop at floor
-      this.isCurrentlyStopping = true;
-      this.remainingStopTime = STOP_DURATION;
-      this.notify();
-      playSound();
-
-      // Countdown remaining stop time gradually for better ETA precision
-      while (this.remainingStopTime > 0) {
-        await sleep(intervalMs);
-        this.remainingStopTime = Math.max(
-          0,
-          this.remainingStopTime - intervalMs / 1000
-        );
-        this.notify();
-      }
-
+      const targetFloor = this.targetFloors[0];
+      await this.moveToFloor(targetFloor);
+      await this.stopAtFloor(targetFloor);
       this.targetFloors.shift(); // Remove completed target
-
-      this.isCurrentlyStopping = false;
-      this.notify();
     }
 
     this.isMoving = false;
     this.notify();
+  }
+
+  /**
+   * Moves elevator to specified floor using CSS transition.
+   * @param targetFloor Destination floor number
+   */
+  private async moveToFloor(targetFloor: number): Promise<void> {
+    const startPosition = this.exactPosition;
+    const distance = Math.abs(targetFloor - startPosition);
+    const moveDuration = distance * FLOOR_DURATION;
+
+    if (distance === 0) return; // Already at target floor
+
+    // Set up CSS transition parameters
+    this.animationStartPosition = startPosition;
+    this.animationTargetPosition = targetFloor;
+    this.animationDuration = moveDuration;
+    this.animationStartTime = Date.now();
+
+    // Update position for CSS transition
+    this.exactPosition = targetFloor;
+    this.notify();
+
+    // Wait for movement to complete
+    await sleep(moveDuration * 1000);
+
+    // Update current floor when movement is complete
+    this.currentFloor = targetFloor;
+    this.notify();
+  }
+
+  /**
+   * Handles elevator stop at a floor with countdown timer.
+   * @param floor Floor number where elevator stops
+   */
+  private async stopAtFloor(floor: number): Promise<void> {
+    this.isCurrentlyStopping = true;
+    this.remainingStopTime = STOP_DURATION;
+    this.animationDuration = 0; // No transition during stop
+    this.notify();
+
+    playSound();
+
+    // Countdown stop time with regular updates for UI
+    const updateInterval = 100; // Update every 100ms for smooth timer display
+    while (this.remainingStopTime > 0) {
+      await sleep(updateInterval);
+      this.remainingStopTime = Math.max(
+        0,
+        this.remainingStopTime - updateInterval / 1000
+      );
+      this.notify();
+    }
+
+    this.isCurrentlyStopping = false;
+    this.notify();
+  }
+
+  /**
+   * Gets the current transition duration for CSS animation.
+   * Returns 0 when not moving or during stops.
+   */
+  getCurrentTransitionDuration(): number {
+    if (!this.isMoving || this.isCurrentlyStopping) {
+      return 0;
+    }
+    return this.animationDuration;
   }
 }

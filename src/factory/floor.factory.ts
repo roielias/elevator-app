@@ -1,4 +1,4 @@
-import { Floor } from "../classes/floor";
+import { Floor } from "../classes/Floor";
 
 /**
  * Factory for creating Floor instances

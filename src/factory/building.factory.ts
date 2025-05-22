@@ -1,4 +1,4 @@
-import { Building } from "../classes/building";
+import { Building } from "../classes/Building";
 
 /**
  * Factory for creating Building instances

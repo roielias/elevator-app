@@ -109,9 +109,8 @@ export const ElevatorTrack = styled.div<{ $floorCount: number }>`
 `;
 
 /**
- * ElevatorBox
- * Represents the elevator box.
- * Uses CSS `bottom` for animation position.
+ * ElevatorBox with CSS transition-based animation
+ * Uses linear timing function for consistent speed matching FLOOR_DURATION constant
  */
 export const ElevatorBox = styled.div<{
   $floorPosition?: number;
@@ -127,7 +126,9 @@ export const ElevatorBox = styled.div<{
   background-position: center;
   border-radius: 5px;
 
-  transition: bottom ${({ $duration }) => $duration}s linear;
+  /* CSS transition for smooth, accurate movement */
+  transition: ${({ $duration }) =>
+    $duration > 0 ? `bottom ${$duration}s linear` : "none"};
 
   bottom: ${({ $floorPosition, $floorHeight, $offset }) =>
     $floorPosition !== undefined

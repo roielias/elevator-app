@@ -1,4 +1,4 @@
-import { Elevator } from "../classes/elevator";
+import { Elevator } from "../classes/Elevator";
 
 /**
  * Factory for creating Elevator instances

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as S from "./styled";
-import { Building } from "../../classes/building";
+import { Building } from "../../classes/Building";
 import { BuildingFactory } from "../../factory/building.factory";
 import BuildingView from "./BuildingView";
 
@@ -20,8 +20,8 @@ interface MainComponentProps {
 /**
  * MainComponent
  * - Creates building instances based on config
- * - Tracks real-time elevator positions and transition durations
- * - Renders BuildingView components for each building
+ * - Tracks elevator positions and transition durations for CSS animations
+ * - Uses optimized update intervals for better performance
  */
 const MainComponent: React.FC<MainComponentProps> = ({ config }) => {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -43,6 +43,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ config }) => {
     );
     setBuildings(newBuildings);
 
+    // Initialize position and transition tracking
     const initialPositions = Object.fromEntries(
       config.flatMap(({ elevatorIds }) => elevatorIds.map((id) => [id, 0]))
     );
@@ -55,43 +56,62 @@ const MainComponent: React.FC<MainComponentProps> = ({ config }) => {
   }, [config]);
 
   /**
-   * Subscribe to elevator updates and track their positions + transition times
+   * Subscribe to elevator updates for position and transition tracking
+   * This replaces the old frequent position updates with event-driven updates
    */
   useEffect(() => {
+    const cleanupFunctions: (() => void)[] = [];
+
     buildings.forEach((building) => {
       building.elevators.forEach((elevator) => {
-        elevator.addListener((updated) => {
+        const cleanup = elevator.addListener((updated) => {
+          // Update position for CSS transition
           setElevatorPositions((prev) => ({
             ...prev,
             [updated.id]: updated.exactPosition,
           }));
+
+          // Update transition duration for CSS animation timing
           setElevatorTransitions((prev) => ({
             ...prev,
-            [updated.id]: updated.currentTransitionDuration,
+            [updated.id]: updated.getCurrentTransitionDuration(),
           }));
         });
+        cleanupFunctions.push(cleanup);
       });
     });
+
+    // Cleanup listeners on unmount or buildings change
+    return () => {
+      cleanupFunctions.forEach((cleanup) => cleanup());
+    };
   }, [buildings]);
 
   /**
-   * Periodic update loop for timers (e.g., stop countdown)
-   * No need to animate anything – handled by CSS transform
+   * Timer update loop for floor countdowns and stop timers
+   * Reduced frequency since we're no longer animating positions manually
    */
   useEffect(() => {
-    const interval = 100; // 100ms is enough for timer updates
+    const updateInterval = 100; // 100ms for smooth timer display
     const timer = setInterval(() => {
-      setBuildings((prev) => {
-        prev.forEach((b) => b.updateTimers(interval / 1000));
-        return [...prev];
+      setBuildings((prevBuildings) => {
+        // Update floor timers
+        prevBuildings.forEach((building) => {
+          building.updateTimers(updateInterval / 1000);
+        });
+
+        // Return new array reference to trigger re-render
+        return [...prevBuildings];
       });
-    }, interval);
+    }, updateInterval);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [buildings]);
 
   /**
-   * Call elevator to specific floor
+   * Handles elevator call for a specific building and floor
+   * @param buildingId ID of the building
+   * @param floorNumber Target floor number
    */
   const handleCall = (buildingId: string, floorNumber: number) => {
     const building = buildings.find((b) => b.id === buildingId);

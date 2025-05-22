@@ -3,25 +3,21 @@ import * as S from "./styled";
 
 /**
  * ElevatorView component
- * Displays a single elevator inside its vertical shaft.
- * Props:
- * - elevatorId: unique ID for the elevator
- * - floorCount: total number of floors in the building
- * - position: current vertical position of the elevator (can be float)
- * - transitionDuration: duration (in seconds) for the transition animation
+ * Displays a single elevator with CSS transition-based animation.
+ * The transition duration and position are controlled by the elevator's state.
  */
 interface ElevatorViewProps {
   elevatorId: string;
   floorCount: number;
-  position: number;
-  transitionDuration?: number;
+  position: number; // Target position for CSS transition
+  transitionDuration: number; // Duration in seconds for smooth transition
 }
 
 const ElevatorView: React.FC<ElevatorViewProps> = ({
   elevatorId,
   floorCount,
   position,
-  transitionDuration = 0,
+  transitionDuration,
 }) => {
   const floorHeight = 110; // Height of a single floor in pixels
   const offset = 35; // Additional offset for precise positioning

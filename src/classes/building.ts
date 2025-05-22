@@ -1,6 +1,6 @@
 // building.ts
-import { Elevator } from "./elevator";
-import { Floor } from "./floor";
+import { Elevator } from "./Elevator";
+import { Floor } from "./Floor";
 import { FLOOR_DURATION, STOP_DURATION } from "../constants";
 import { FloorFactory } from "../factory/floor.factory";
 import { ElevatorFactory } from "../factory/elevator.factory";
