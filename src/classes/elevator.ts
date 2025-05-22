@@ -12,6 +12,8 @@ export class Elevator {
   isMoving: boolean = false; // True while elevator is in motion
   isCurrentlyStopping: boolean = false; // True while elevator is waiting at a floor
   remainingStopTime: number = 0; // Remaining time to stay stopped at current floor (in seconds)
+  currentTransitionDuration: number = 0;
+
   /** Subscribers to elevator state changes (used by UI to react to state updates) */
   listeners: ((elevator: Elevator) => void)[] = [];
 
