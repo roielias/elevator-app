@@ -5,8 +5,6 @@ export class Floor {
   number: number; // floor number (index)
   timer: number = 0; // countdown timer until elevator arrives
   isCalling: boolean = false; // whether the floor is currently calling an elevator
-
-  // New properties for synchronized timing
   startTime?: number; // timestamp when elevator call started
   originalEta?: number; // original estimated arrival time
 

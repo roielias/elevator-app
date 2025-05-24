@@ -8,13 +8,13 @@ import { sleep, playSound } from "../utils";
 export class Elevator {
   id: string;
   currentFloor: number = 0; // Current floor number (integer)
-  exactPosition: number = 0; // Precise elevator position for CSS positioning
+  exactPosition: number = 0; // Precise elevator position for CSS positioning (float)
   targetFloors: number[] = []; // Queue of target floors
   isMoving: boolean = false; // True while elevator is in motion
-  isCurrentlyStopping: boolean = false; // True while elevator is waiting at a floor
+  isCurrentlyStopping: boolean = false; // True while elevator is stopping at a floor
   remainingStopTime: number = 0; // Remaining time to stay stopped (seconds)
 
-  // New properties for CSS transition-based animation
+  // properties for CSS transition-based animation
   animationStartPosition: number = 0; // Position where current animation started
   animationTargetPosition: number = 0; // Target position for current animation
   animationDuration: number = 0; // Duration of current transition (seconds)
