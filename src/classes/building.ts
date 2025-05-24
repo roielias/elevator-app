@@ -106,7 +106,7 @@ export class Building {
 
   /**
    * Estimates total time for elevator to reach a requested floor.
-   * Time is based on distance, stop durations, and — if currently stopping — the remaining stop time.
+   * Uses existing floor timers to get accurate remaining time for active calls.
    * @param elevator Elevator to evaluate
    * @param floor Target floor number
    * @returns Estimated arrival time in seconds (rounded to 1 decimal place)
@@ -119,23 +119,62 @@ export class Building {
     // Include target floor if it's not already in the elevator's queue
     if (!path.includes(floor)) path.push(floor);
 
-    const isCurrentlyStopping = elevator.isCurrentlyStopping;
+    // Find the maximum remaining time from all floors that are currently calling this elevator
+    // This gives us the time until the elevator finishes all its current commitments
+    let maxExistingTimer = 0;
+    this.floors.forEach((f) => {
+      if (f.isCalling && f.timer > maxExistingTimer) {
+        // Check if this floor is in the elevator's target list
+        if (elevator.targetFloors.includes(f.number)) {
+          maxExistingTimer = f.timer;
+        }
+      }
+    });
 
-    for (let i = 0; i < path.length; i++) {
-      const f = path[i];
-      time += Math.abs(current - f) * FLOOR_DURATION;
+    // If there are existing timers, use the maximum one as base time
+    if (maxExistingTimer > 0) {
+      time = maxExistingTimer;
 
-      // Stop counting when we reach the evaluated target floor
-      if (f === floor) break;
+      // Find what floor corresponds to this max timer
+      const lastTargetFloor = this.floors.find(
+        (f) =>
+          f.isCalling &&
+          f.timer === maxExistingTimer &&
+          elevator.targetFloors.includes(f.number)
+      );
 
-      // For the first stop, if elevator is currently stopping, add only the remaining stop time
-      if (i === 0 && isCurrentlyStopping) {
+      if (lastTargetFloor) {
+        current = lastTargetFloor.number;
+
+        // If our target floor is not already in the path, add stop time + travel time
+        if (!elevator.targetFloors.includes(floor)) {
+          // Add stop duration at the last target floor
+          time += STOP_DURATION;
+          // Add travel time from the last target to our new target
+          time += Math.abs(current - floor) * FLOOR_DURATION;
+        }
+      }
+    } else {
+      // No existing timers, calculate from current position
+      const isCurrentlyStopping = elevator.isCurrentlyStopping;
+
+      // If elevator is currently stopping, add remaining stop time
+      if (isCurrentlyStopping) {
         time += elevator.remainingStopTime;
-      } else {
-        time += STOP_DURATION;
       }
 
-      current = f;
+      // Process all floors in the path
+      for (let i = 0; i < path.length; i++) {
+        const f = path[i];
+        time += Math.abs(current - f) * FLOOR_DURATION;
+
+        // Stop counting when we reach the evaluated target floor
+        if (f === floor) break;
+
+        // Add stop duration for intermediate floors
+        time += STOP_DURATION;
+        current = f;
+      }
     }
 
     return Math.round(time * 10) / 10;
