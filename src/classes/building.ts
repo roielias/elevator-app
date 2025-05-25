@@ -105,37 +105,57 @@ export class Building {
   }
 
   /**
-   * Estimates total time for elevator to reach a requested floor.
-   * Time is based on distance, stop durations, and — if currently stopping — the remaining stop time.
-   * @param elevator Elevator to evaluate
-   * @param floor Target floor number
-   * @returns Estimated arrival time in seconds (rounded to 1 decimal place)
+   * Estimates the total time (in seconds) for an elevator to reach a requested floor.
+   * Accounts for current elevator state (stopping/moving), queue order, and realistic travel & stop durations.
+   *
+   * @param elevator - The elevator instance being evaluated.
+   * @param floor - The requested destination floor.
+   * @returns Estimated time to arrival, rounded to 1 decimal place.
    */
-  private estimateArrival(elevator: Elevator, floor: number) {
+  private estimateArrival(elevator: Elevator, floor: number): number {
     let time = 0;
-    let current = elevator.exactPosition;
-    const path = [...elevator.targetFloors];
+    let currentPosition = elevator.exactPosition;
+    const targetFloors = [...elevator.targetFloors];
 
-    // Include target floor if it's not already in the elevator's queue
-    if (!path.includes(floor)) path.push(floor);
+    // Add the requested floor to the path if not already present
+    if (!targetFloors.includes(floor)) {
+      targetFloors.push(floor);
+    }
 
-    const isCurrentlyStopping = elevator.isCurrentlyStopping;
+    // Handle case where elevator is currently stopping
+    if (elevator.isCurrentlyStopping) {
+      time += elevator.remainingStopTime;
+      currentPosition = Math.floor(elevator.exactPosition); // Normalize position to integer floor
+    }
 
-    for (let i = 0; i < path.length; i++) {
-      const f = path[i];
-      time += Math.abs(current - f) * FLOOR_DURATION;
+    // Handle case where elevator is in motion and has a first target
+    else if (elevator.isMoving && targetFloors.length > 0) {
+      const nextFloor = targetFloors[0];
+      const floorObj = this.floors.find((f) => f.number === nextFloor);
+      if (floorObj && floorObj.timer > 0) {
+        time += floorObj.timer; // Use real-time ETA if available
+        currentPosition = nextFloor;
+        time += STOP_DURATION; // Account for planned stop at next floor
+        targetFloors.shift(); // Remove already-handled target
+      }
+    }
 
-      // Stop counting when we reach the evaluated target floor
-      if (f === floor) break;
-
-      // For the first stop, if elevator is currently stopping, add only the remaining stop time
-      if (i === 0 && isCurrentlyStopping) {
-        time += elevator.remainingStopTime;
-      } else {
-        time += STOP_DURATION;
+    // Simulate remaining path
+    for (const targetFloor of targetFloors) {
+      if (currentPosition === targetFloor) {
+        continue; // Skip redundant move to current position
       }
 
-      current = f;
+      const travelTime =
+        Math.abs(currentPosition - targetFloor) * FLOOR_DURATION;
+      time += travelTime;
+      currentPosition = targetFloor;
+
+      if (targetFloor === floor) {
+        break; // Stop once requested floor is reached
+      }
+
+      time += STOP_DURATION; // Include stop time for intermediate floors
     }
 
     return Math.round(time * 10) / 10;
